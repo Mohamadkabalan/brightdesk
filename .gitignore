@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Tool caches
+.ruff_cache/
+.pytest_cache/
+
+# Secrets: real configuration lives in .env, which is NEVER committed
+.env
+.env.*
+!.env.example
+
+# Generated output from our scripts
+out/
