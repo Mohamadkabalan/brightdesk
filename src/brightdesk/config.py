@@ -1,8 +1,10 @@
 from functools import lru_cache  # Cache the Settings object so .env is read only once
 from typing import Literal  # Literal restricts a string field to a fixed set of values
 
-from pydantic import SecretStr  # A string wrapper that hides its value when printed
+from pydantic import Field, SecretStr  # A string wrapper that hides its value when printed
 from pydantic_settings import BaseSettings, SettingsConfigDict  # Env-var-driven config models
+
+log_level = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class Settings(BaseSettings):
@@ -27,8 +29,11 @@ class Settings(BaseSettings):
     local_model: str = "llama3.2"  # Any model you have pulled locally
 
     # --- Reliability knobs shared by all providers --------------------------------
-    llm_timeout_s: float = 60.0  # Give up on a single request after this many seconds
-    llm_max_retries: int = 2  # The SDKs retry 429/5xx errors with backoff this many times
+    llm_timeout_s: float = Field(default=60.0, gt=0, le=600)
+
+    llm_max_retries: int = Field(
+        default=2, gt=0, le=10
+    )  # The SDKs retry 429/5xx errors with backoff this many times
 
     # --- Retrieval -------------------------------------------------------------------
     embedding_backend: Literal["hash", "sentence-transformers", "openai"] = "hash"
@@ -36,7 +41,8 @@ class Settings(BaseSettings):
 
     # --- Infrastructure --------------------------------------------------------------
     database_url: str | None = None  # e.g. postgresql://user:pass@localhost:5432/brightdesk
-    log_level: str = "INFO"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
+
 
 @lru_cache  # The first call builds Settings; later calls return the same object
 def get_settings() -> Settings:

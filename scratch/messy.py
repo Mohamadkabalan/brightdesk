@@ -1,9 +1,13 @@
-def summarize(tickets: list[dict], prefix: str | None = None, seen=[]) -> str:
+def summarize(tickets: list[dict], prefix: str | None = None, seen: set[str] | None = None) -> str:
+
+    if seen is None:  # B006 fix: create a NEW set on every call instead of sharing one default
+        seen = set()
+
     result = ""
-    for t in tickets:
-        if t["id"] in seen:
+    for ticket in tickets:
+        if ticket["id"] in seen:
             continue
-        seen.append(t["id"])
-        if "subject" in t.keys():
-            result = result + (prefix or "") + t["subject"] + "\n"
+        seen.add(ticket["id"])
+        if "subject" in ticket:
+            result += (prefix or "") + ticket["subject"] + "\n"
     return result
